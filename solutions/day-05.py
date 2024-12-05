@@ -12,23 +12,32 @@ for line in data:
     elif ',' in line:
         pages.append(list(map(int,line.split(','))))
 
-correct = 0
+def page_valid(page):
+
+    ids = list(range(len(page)))
+
+    for i in ids:
+        rest = ids.copy(); rest.pop(i)
+        comb = [sorted([i,r]) for r in rest]
+
+        for l,r in comb:
+            if not f'{page[l]}|{page[r]}' in rules:
+                page[l], page[r] = page[r], page[l]
+                page_valid(page)
+                return page
+    
+    return True
+
+correct, incorrect = 0, 0
 
 for page in pages:
 
-    ids = list(range(len(page)))
-    valid = True
+    valid = page_valid(page)
 
-    for i in ids:
-        rest = ids.copy()
-        rest.pop(i)
-
-        comb = [sorted([i,r]) for r in rest]
-
-        if not all(f'{page[l]}|{page[r]}' in rules for l,r in comb):
-            valid = False
-            break
-
-    if valid: correct += page[len(page) // 2]
+    if valid == True: 
+        correct += page[len(page) // 2]
+    else:
+        incorrect += valid[len(valid) // 2]
 
 print('Part 1:', correct)
+print('Part 2:', incorrect)
