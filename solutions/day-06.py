@@ -4,53 +4,61 @@ import regex as re
 # --- Day 6: Guard Gallivant ---
 
 data = getinput(day='06', example = False)
+data = [list(map(str, line)) for line in data]
 
 def find_guard(data):
     for i, line in enumerate(data):
         if '^' in line:
             return (i, line.index('^'), '^')
 
+start_guard = find_guard(data)
 directions = {'^': (-1,0), 'v': (1,0), '<': (0,-1), '>': (0,1)}
 dirchange = {'^': '>', '>': 'v', 'v': '<', '<': '^'}
 
-x, y, guard = find_guard(data)
-dx, dy = directions[guard]
-steps = 1
+def guard_route(data, start_guard):
 
-while True:
-    if x+dx < 0 or x+dx > len(data)-1 or y+dy < 0 or y+dy > len(data[0])-1:
-        break
+    x, y, guard = start_guard
+    dx, dy = directions[guard]
 
-    if data[x+dx][y+dy] == '#':
-        guard = dirchange[guard]
-        dx, dy = directions[guard]
-    
-    x+=dx; y+=dy
+    route = [line.copy() for line in data]
+    bumps = set()
+    steps = 1
 
-    if data[x][y] == '.':
-        steps+=1
-    data[x] = data[x][:y] + 'o' + data[x][y+1:]
+    while True:
+        if not (0 <= x+dx < len(route) and 0 <= y+dy < len(route[0])):
+            break
 
-print(steps) 
+        while route[x+dx][y+dy] == '#':
+            if (x,y,guard) in bumps:
+                return None
+            bumps.add((x,y,guard))
 
+            guard = dirchange[guard]
+            dx, dy = directions[guard]
+        
+        x+=dx; y+=dy
 
+        if route[x][y] == '.':
+            steps+=1
+        route[x][y] = 'o'
 
+    return route, steps
 
+route, steps = guard_route(data, start_guard)
 
+x, y, guard = start_guard
+start = (x,y)
+loopz = 0
 
+for x, line in enumerate(route):
+    for y, char in enumerate(line):
 
+        if char == 'o' and (x,y) != start:
+            data[x][y] = '#'
+            collision = guard_route(data, start_guard)
+            if collision is None:
+                loopz+=1
+            data[x][y] = '.'
 
-
-
-
-
-# def find_obstructions(data):
-#     obstructions = []
-#     for i, line in enumerate(data):
-#         obs = [o.start() for o in re.finditer(r'#', line)]
-#         for o in obs:
-#             obstructions.append((i, o))
-
-#     return obstructions
-
-# obstructions = find_obstructions(data)
+print('Part 1:', steps)
+print('Part 2:', loopz)
