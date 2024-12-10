@@ -2,7 +2,7 @@ from _getinput import *
 
 # --- Day 10: Hoof It ---
 
-data = getinput('10',example=False)
+data = getinput('10', example=False)
 
 trailhead = []
 
@@ -16,9 +16,8 @@ directions = ((-1,0), (1,0), (0,-1), (0,1))
 def out_of_bounds(x,y):
     return not (0 <= x < len(data) and 0 <= y < len(data[0]))
 
-def trail_search(trail):
-    queue = [trail]
-    visited = []
+def trail_search(trail, distinct = False):
+    queue, visited = [trail], []
     score = 0
 
     while queue:
@@ -37,7 +36,8 @@ def trail_search(trail):
             if next-prev == 1:
 
                 if next == 9:
-                    visited.append((nx,ny))
+                    if not distinct:
+                        visited.append((nx,ny))
                     score+=1
                     continue
 
@@ -45,9 +45,11 @@ def trail_search(trail):
 
     return score
 
-total = 0
+total, total_dist = 0,0
 
 for trail in trailhead:
     total += trail_search(trail)
+    total_dist += trail_search(trail, True)
 
 print('Part 1:', total)
+print('Part 2:', total_dist)
