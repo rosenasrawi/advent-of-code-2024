@@ -1,17 +1,15 @@
 from _getinput import *
-import regex as re
 
 # --- Day 6: Guard Gallivant ---
 
 data = getinput(day='06', example = False)
 data = [list(map(str, line)) for line in data]
 
-def find_guard(data):
-    for i, line in enumerate(data):
-        if '^' in line:
-            return (i, line.index('^'), '^')
+for i, line in enumerate(data):
+    if '^' in line:
+        start_guard = (i, line.index('^'), '^')
+        break
 
-start_guard = find_guard(data)
 directions = {'^': (-1,0), 'v': (1,0), '<': (0,-1), '>': (0,1)}
 dirchange = {'^': '>', '>': 'v', 'v': '<', '<': '^'}
 
@@ -47,16 +45,14 @@ def guard_route(data, start_guard):
 route, steps = guard_route(data, start_guard)
 
 x, y, guard = start_guard
-start = (x,y)
-loopz = 0
+loopz, start = 0, (x,y)
 
 for x, line in enumerate(route):
     for y, char in enumerate(line):
 
         if char == 'o' and (x,y) != start:
             data[x][y] = '#'
-            collision = guard_route(data, start_guard)
-            if collision is None:
+            if guard_route(data, start_guard) is None:
                 loopz+=1
             data[x][y] = '.'
 
