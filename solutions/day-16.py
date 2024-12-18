@@ -1,5 +1,4 @@
 from _getinput import *
-import regex as re
 
 # --- Day 16: Reindeer Maze ---
 
@@ -24,22 +23,31 @@ def bfs(start, end):
     best_score = float('inf')
     sx, sy = start
     turn = (1,0)
+    path = set()
+    paths = dict()
 
-    queue = [(sx,sy,0,turn)]
+    queue = [(sx, sy, 0, turn, path)]
     visited = dict()
 
     while queue:
-        x, y, score, turn = queue.pop(0)
+        x, y, score, turn, path = queue.pop(0)
 
         if grid[y][x] == '#':
             continue
 
         if (x,y) == end:
+            
+            if score not in paths:
+                paths[score] = path
+            elif score in paths:
+                paths[score].update(path)
+
             if score < best_score:
                 best_score = score
             continue
 
-        key = (x,y)
+        key = (x,y,turn)
+
         if key in visited and visited[key] < score:
             continue
         visited[key] = score
@@ -48,6 +56,7 @@ def bfs(start, end):
 
             new_turn = (dx,dy)
             new_score = score
+            new_path = path.copy()
 
             if turn == new_turn:
                 new_score += 1
@@ -56,10 +65,16 @@ def bfs(start, end):
             else:
                 new_score += 1001
 
-            queue.append((x+dx, y+dy, new_score, new_turn))
+            nx = x+dx
+            ny = y+dy
+            new_path.add((nx, ny))
 
-    return best_score
+            queue.append((nx, ny, new_score, new_turn, new_path))
+
+    return best_score, len(paths[min(paths.keys())])+1
 
 grid, start, end = get_grid(data)
+total, best = bfs(start, end)
 
-print('Part 1:', bfs(start,end))
+print('Part 1:', total)
+print('Part 2:', best)
