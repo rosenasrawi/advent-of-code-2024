@@ -6,32 +6,36 @@ data = getinput('19', example=False)
 
 towels = data.pop(0).split(', ')
 designs = data[1:]
+
+def check_design(combo, design, n):
+    if combo in memo:
+        return memo[combo]
+
+    if combo == design:
+        return 1
+    
+    if len(combo) > len(design):
+        return 0
+    
+    for towel in selection:
+        next_combo = combo+towel
+
+        if next_combo == design[:len(next_combo)]:
+            n += check_design(next_combo, design, 0)
+            
+    memo[combo] = n
+    return n
+
 possible = 0
+all_possible = 0
 
 for design in designs:
-
+    memo = dict()
     selection = [towel for towel in towels if towel in design]
-    queue = selection.copy()
 
-    while queue:
-        combo = queue.pop()
-        if combo != design[:len(combo)]: 
-            continue
+    count = check_design('', design, 0)
+    all_possible += count
+    if count > 0:
+        possible += 1
 
-        for towel in selection:
-            next_combo = combo + towel
-
-            if next_combo != design[:len(next_combo)]: 
-                continue
-
-            if len(next_combo) > len(design):
-                continue
-
-            if next_combo == design:
-                possible += 1
-                queue.clear()
-                break
-
-            queue.append(next_combo)
-
-print('Part 1:', possible)
+print(possible, all_possible)
