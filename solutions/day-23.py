@@ -1,8 +1,9 @@
 from _getinput import *
+import networkx as nx
 
 # --- Day 23: LAN Party ---
 
-data = getinput('23', example=True)
+data = getinput('23', example=False)
 
 def connect(data):
     data = [tuple(map(str,line.split('-'))) for line in data]
@@ -29,5 +30,18 @@ def find_trios(connections):
 
     return len(trios)
 
+def find_LAN(data):
+    edges = [tuple(map(str,line.split('-'))) for line in data]
+
+    G = nx.Graph()
+    G.add_edges_from(edges)
+
+    cliques = list(nx.find_cliques(G))
+    largest_clique = sorted(max(cliques, key=len))
+
+    return ','.join(largest_clique)
+
 connections = connect(data)
+
 print('Part 1:', find_trios(connections))
+print('Part 2:', find_LAN(data))
