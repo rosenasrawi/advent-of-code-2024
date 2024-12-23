@@ -2,40 +2,32 @@ from _getinput import *
 
 # --- Day 23: LAN Party ---
 
-data = getinput('23', example=False)
-data = [tuple(map(str,line.split('-'))) for line in data]
+data = getinput('23', example=True)
 
-connections = dict()
-for k, v in data:
-    if k in connections:
-        connections[k].append(v)
-    else:
-        connections[k] = [v]
+def connect(data):
+    data = [tuple(map(str,line.split('-'))) for line in data]
+    connections = dict()
 
-    if v in connections:
-        connections[v].append(k)
-    else:
-        connections[v] = [k]
+    for k, v in data:
+        connections.setdefault(k, []).append(v)
+        connections.setdefault(v, []).append(k)
 
-computers = set(connections.keys())
+    return connections
 
-trios = set()
+def find_trios(connections):
+    computers = list(connections.keys())
+    trios = set()
 
-for computer in computers:
+    for computer in computers:
+        for con in connections[computer]:
+            for next in connections[con]:
 
-    for con in connections[computer]:
-        inter = [computer, con]
-
-        for next in connections[con]:
-
-            if next not in inter:
-                if next in connections[computer]:
-                    trio = inter.copy()
-                    trio.append(next)
-                    trio = tuple(sorted(trio))
-
-                    if any ([c[0] == 't' for c in trio]):
+                if next != computer and computer in connections[next]:
+                    trio = tuple(sorted([computer, con, next]))
+                    if any(c.startswith('t') for c in trio):
                         trios.add(trio)
 
-print(len(trios))
+    return len(trios)
 
+connections = connect(data)
+print('Part 1:', find_trios(connections))
